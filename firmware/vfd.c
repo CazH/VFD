@@ -3,8 +3,12 @@
 #define CONTROLPORT PORTB
 #define CONTROL_DDR DDRB
 
-#define DATAPORT PORTD
-#define DATA_DDR DDRD
+#define DATAPORT1 PORTD
+#define DATA_DDR1 DDRD
+
+#define DATAPORT2 PORTC
+#define DATA_DDR2 DDRC
+
 
 /*
 ARDUINO DUEMILANOVE MAPPING FOR THE VFD:
@@ -71,9 +75,11 @@ void setup_io()
 {
 //OUTPUT ALL THE THINGS!!!!
 CONTROL_DDR = 0xff;
-DATA_DDR = 0xff;
+DATA_DDR1 = 0xff;
+DATA_DDR2 = 0xff;
 
-DATAPORT = 0x00;
+DATAPORT1 = 0x00;
+DATAPORT2 = 0x00;
 CONTROLPORT = 0x00;
 
 CONTROLPORT &= ~(1 << PB1); //Dig9 <-> VFD23 = !CS
@@ -105,7 +111,8 @@ void write_data(char command,char data)
 
 	CONTROLPORT &=~(1 << PB5); //dig13 <-> VFD17 = Write enable pin toggle.
 
-	DATAPORT = data;
+	DATAPORT1 = (0xfc & data);
+	DATAPORT2 = (0x03 & data);
 
 	_delay_us(10);
 
