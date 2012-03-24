@@ -36,6 +36,10 @@ VFD pin #:		VFD pin name:	ATMEGA 328 pin name:	Arduino pin name:
 void write_data(char,char); //1st char=0 for ASCII data, and !=0 for a command to the VFD , 2. char is data/command
 void setup_io();
 void setup_vfd();
+void setup_uart();
+
+char *buf_p;
+char newchar;
 
 int main(void)
 {
@@ -123,4 +127,14 @@ void write_data(char command,char data)
 
 }
 
+void setup_uart(void)
+{
+	UCSR0B |= (1 << RXEN0) | (1 << TXEN0);
 
+	UBRR0H = (BAUD_PRESCALE >> 8);
+	UBRR0L = BAUD_PRESCALE;
+
+	stdout = stdin = &uart_str;
+
+	buf_p = &uart_buf[0];
+}
