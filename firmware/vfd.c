@@ -34,7 +34,10 @@ VFD pin #:		VFD pin name:	ATMEGA 328 pin name:	Arduino pin name:
 
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
+#include <string.h>
+
 #include "uart.c"
 void write_data(char,char); //1st char=0 for ASCII data, and !=0 for a command to the VFD , 2. char is data/command
 void setup_io();
@@ -43,7 +46,6 @@ void setup_uart();
 
 char uart_buf[20];
 char *buf_p;
-char newchar;
 
 int main(void)
 {
@@ -135,7 +137,7 @@ void write_data(char command,char data)
 
 void setup_uart(void)
 {
-	UCSR0B |= (1 << RXEN0) | (1 << TXEN0);
+	UCSR0B |= (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
 
 	UBRR0H = (BAUD_PRESCALE >> 8);
 	UBRR0L = BAUD_PRESCALE;
@@ -143,4 +145,30 @@ void setup_uart(void)
 	stdout = stdin = &uart_str;
 
 	buf_p = &uart_buf[0];
+}
+
+ISR(USART_RX_vect)
+{
+	char newchar;
+
+	newchar = UDR0;
+
+	if(newchar == 0x0d)  //if CR recived
+	{
+		// ParseUartCmd();
+		memset(uart_buf, 0, sizeof(uart_buf));
+		buf_p = &uart_buf[0];
+		} else {
+
+		*buf_p = newchar;
+
+		buf_p++;
+
+		if(buf_p == (void *)&uart_buf[39])
+		{
+			printf("ERROR: linebuffer overflow\n");
+			memset(uart_buf, 0, sizeof(uart_buf));
+			buf_p = &uart_buf[0];
+		}
+	}
 }
