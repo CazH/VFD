@@ -62,6 +62,8 @@ int main(void)
 
 	sei(); // Enable global interrupt flag
 
+	printf("\nVFD Controller>");
+
 	int n=0;
 	int i=0;
 	int z=0;
@@ -169,15 +171,18 @@ ISR(USART_RX_vect)
 
 		if(buf_p == (void *)&uart_buf[19])
 		{
-			printf("ERROR: linebuffer overflow\n");
+			printf("\nERROR: linebuffer overflow \nVFD Controller>");
 			memset(uart_buf, 0, sizeof(uart_buf));
 			buf_p = &uart_buf[0];
 		}
 	}
+	UDR0 = newchar;
 }
 
 
 void parse_cmd(void)
 {
-	printf("NOK\n");
+	printf("\nERROR: Command not known");
+
+	printf("\nVFD Controller>");
 }
