@@ -43,6 +43,7 @@ void write_data(char,char); //1st char=0 for ASCII data, and !=0 for a command t
 void setup_io();
 void setup_vfd();
 void setup_uart();
+void parse_cmd();
 
 char uart_buf[20];
 char *buf_p;
@@ -58,6 +59,8 @@ int main(void)
 	setup_vfd();
 
 	setup_uart();
+
+	sei(); // Enable global interrupt flag
 
 	int n=0;
 	int i=0;
@@ -155,7 +158,7 @@ ISR(USART_RX_vect)
 
 	if(newchar == 0x0d)  //if CR recived
 	{
-		// ParseUartCmd();
+		parse_cmd();
 		memset(uart_buf, 0, sizeof(uart_buf));
 		buf_p = &uart_buf[0];
 		} else {
@@ -164,11 +167,17 @@ ISR(USART_RX_vect)
 
 		buf_p++;
 
-		if(buf_p == (void *)&uart_buf[39])
+		if(buf_p == (void *)&uart_buf[19])
 		{
 			printf("ERROR: linebuffer overflow\n");
 			memset(uart_buf, 0, sizeof(uart_buf));
 			buf_p = &uart_buf[0];
 		}
 	}
+}
+
+
+void parse_cmd(void)
+{
+	printf("NOK\n");
 }
