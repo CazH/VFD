@@ -1,5 +1,8 @@
 #define F_CPU 8000000UL //8 MHz
 
+#define USART_BAUDRATE 9600
+#define BAUD_PRESCALE (((F_CPU / (USART_BAUDRATE * 16UL))) - 1)
+
 #define CONTROLPORT PORTB
 #define CONTROL_DDR DDRB
 
@@ -32,12 +35,13 @@ VFD pin #:		VFD pin name:	ATMEGA 328 pin name:	Arduino pin name:
 
 #include <avr/io.h>
 #include <util/delay.h>
-
+#include "uart.c"
 void write_data(char,char); //1st char=0 for ASCII data, and !=0 for a command to the VFD , 2. char is data/command
 void setup_io();
 void setup_vfd();
 void setup_uart();
 
+char uart_buf[20];
 char *buf_p;
 char newchar;
 
@@ -50,6 +54,8 @@ int main(void)
 	setup_io();
 	_delay_ms(10);
 	setup_vfd();
+
+	setup_uart();
 
 	int n=0;
 	int i=0;
