@@ -47,6 +47,7 @@ void parse_cmd();
 
 char uart_buf[20];
 char *buf_p;
+char mode = 't';
 
 int main(void)
 {
@@ -182,7 +183,17 @@ ISR(USART_RX_vect)
 
 void parse_cmd(void)
 {
-	printf("\nERROR: Command not known");
+	if(mode == 't')
+	{
+		if(uart_buf[0] == 'h')
+		{
+			printf("\nhelp messeage");
+		} else {
+			printf("\nERROR: Command not known. Type 'h' for help.");
+		}
+	} else if(mode == 'a') {
+		// write stuff to the array and such
+	}
 
 	printf("\nVFD Controller>");
 }
