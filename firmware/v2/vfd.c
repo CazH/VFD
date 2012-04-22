@@ -29,29 +29,39 @@ void parse_cmd(char);
 
 char mode = 1;
 char display_array[39];
+char buf_array[39];
 char *write_pointer;
 
 
 int main(void)
 {
+	setup_io();
+
+	setup_uart();
+
+	_delay_ms(500); // Display needs some time
+
+	setup_vfd();
+
+	sei();
+
 	while(1)
 	{
-		sei;
 	}
 }
 
 void setup_io()
 {
-//OUTPUT ALL THE THINGS!!!!
-CONTROL_DDR = 0xff;
-DATA_DDR1 = 0xff;
-DATA_DDR2 = 0xff;
+	//OUTPUT ALL THE THINGS!!!!
+	CONTROL_DDR = 0xff;
+	DATA_DDR1 = 0xff;
+	DATA_DDR2 = 0xff;
 
-DATAPORT1 = 0x00;
-DATAPORT2 = 0x00;
-CONTROLPORT = 0x00;
+	DATAPORT1 = 0x00;
+	DATAPORT2 = 0x00;
+	CONTROLPORT = 0x00;
 
-CONTROLPORT &= ~(1 << PB1); //Dig9 <-> VFD23 = !CS
+	CONTROLPORT &= ~(1 << PB1); //Dig9 <-> VFD23 = !CS
 }
 
 void setup_uart()
@@ -111,13 +121,15 @@ ISR(USART_RX_vect)
 		if(newchar == 0x0d) // if CR recived
 		{
 			printf("\nRecived CR, saving data and exiting");
+			strcpy(display_array, buf_array);
 			mode = '1';
 		} else {
 			*write_pointer = newchar;
 			write_pointer++;
-			if(write_pointer == (void *)&display_array[39])
+			if(write_pointer == (void *)&buf_array[39])
 			{
 				printf("\nDisplay array full, saving data and exiting");
+				strcpy(display_array, buf_array);
 				mode = '1';
 			}
 		}
@@ -130,8 +142,8 @@ void parse_cmd(char cmd)
 {
 	if(cmd == 'd')
 	{
-		write_pointer = &display_array[0];
-		memset(display_array, 0, sizeof(display_array));
+		write_pointer = &buf_array[0];
+		memset(buf_array, 0, sizeof(buf_array));
 		mode = '2';
 	} else if(cmd == 'w') {
 		eeprom_update_block((const void *)&display_array, (void *)40, sizeof(display_array));
