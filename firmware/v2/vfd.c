@@ -17,6 +17,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <string.h>
+#include <avr/eeprom.h>
 
 #include "uart.c"
 
@@ -133,8 +134,11 @@ void parse_cmd(char cmd)
 		memset(display_array, 0, sizeof(display_array));
 		mode = '2';
 	} else if(cmd == 'w') {
-		//save data to eeprom
+		eeprom_update_block((const void *)&display_array, (void *)40, sizeof(display_array));
 		printf("\nWrote display array to EEPROM");
+	} else if(cmd == 'l') {
+		eeprom_read_block((void *)&display_array, (const void *)40, sizeof(display_array));
+		printf("\nLoaded display array from EEPROM");
 	} else if(cmd == 's') {
 		printf("\nSettings:");
 		// Output all settings
